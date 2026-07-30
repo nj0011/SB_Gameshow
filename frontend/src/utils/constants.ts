@@ -1,6 +1,6 @@
 // Game constants and configuration
 export const BACKEND_HOST =
-  process.env.REACT_APP_BACKEND_HOST || "http://localhost:5004";
+  process.env.REACT_APP_BACKEND_HOST || "https://sb-gameshow.onrender.com";
 
 export const API_BASE = `${BACKEND_HOST}`;
 
@@ -15,8 +15,9 @@ export const GAME_CONFIG = {
 } as const;
 
 export const ROUTES = {
-  LOGIN: "/",
+  LOGIN: "/login",
   REGISTER: "/register",
+  HOME: "/",
   HOSTHOME: "/HostHomePage",
   PLAYERHOME: "/PlayerHomePage",
   HOST: "/host",

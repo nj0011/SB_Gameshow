@@ -11,6 +11,7 @@ import HostHomePage from "./pages/HostHomePage";
 import AudienceGamePage from "./pages/AudienceGamePage";
 import HostRejoinPage from "./pages/HostRejoinPage";
 import RegisterPage from "./pages/Register";
+import HomePageNoAuth from "./pages/HomePage";
 // Import constants
 import { ROUTES } from "./utils/constants";
 
@@ -18,6 +19,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        {/* Root now goes straight to the no-auth home page */}
+        <Route path={ROUTES.HOME} element={<HomePageNoAuth />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
         <Route path={ROUTES.HOSTHOME} element={<HostHomePage />} />

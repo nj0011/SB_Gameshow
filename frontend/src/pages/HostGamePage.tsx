@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
-import { GAME_CONFIG } from "../utils/constants";
 
 
 // Import components
@@ -76,7 +75,7 @@ const HostGamePage: React.FC = () => {
   // Socket setup for turn-based system with single attempt + question data
   const setupSocket = React.useCallback((gameCode: string) => {
     console.log(
-      "🔌 Setting up socket connection for single-attempt game with question tracking..."
+        "🔌 Setting up socket connection for single-attempt game with question tracking..."
     );
 
     // Clean up existing socket
@@ -84,12 +83,12 @@ const HostGamePage: React.FC = () => {
       socketRef.current.disconnect();
     }
 
-    const socket = io(GAME_CONFIG.SOCKET_URL, {
+    const socket = io("https://sb-gameshow.onrender.com", {
       forceNew: true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      timeout: 5004,
+      timeout: 5000,
     });
 
     socketRef.current = socket;
@@ -116,7 +115,7 @@ const HostGamePage: React.FC = () => {
         }
       } else if (gameData.status === "round-summary") {
         setControlMessage(
-          `Round ${gameData.currentRound} completed! Ready for next round.`
+            `Round ${gameData.currentRound} completed! Ready for next round.`
         );
       } else {
         setControlMessage("Waiting for players to join...");
@@ -132,7 +131,7 @@ const HostGamePage: React.FC = () => {
       if (data.activeTeam) {
         const teamName = getTeamName(data.game, data.activeTeam);
         setControlMessage(
-          `Game started! ${teamName} goes first. Each question allows only 1 attempt.`
+            `Game started! ${teamName} goes first. Each question allows only 1 attempt.`
         );
       } else {
         setControlMessage("Game started! Buzz in for the toss-up question.");
@@ -153,13 +152,13 @@ const HostGamePage: React.FC = () => {
           if (!prev) return null;
 
           const playerExists = prev.players.some(
-            (p) => p.id === data.player.id
+              (p) => p.id === data.player.id
           );
           if (playerExists) {
             return {
               ...prev,
               players: prev.players.map((p) =>
-                p.id === data.player.id ? { ...p, ...data.player } : p
+                  p.id === data.player.id ? { ...p, ...data.player } : p
               ),
             };
           }
@@ -176,7 +175,7 @@ const HostGamePage: React.FC = () => {
       console.log("✅ Correct answer with question tracking:", data);
       setGame(data.game);
       setControlMessage(
-        `✅ ${data.playerName} answered correctly! +${data.pointsAwarded} points for ${data.teamName}.`
+          `✅ ${data.playerName} answered correctly! +${data.pointsAwarded} points for ${data.teamName}.`
       );
 
       const round = data.game.currentRound;
@@ -230,36 +229,36 @@ const HostGamePage: React.FC = () => {
       setControlMessage("Question finished. Click Next Question when ready.");
     });
 
-      socket.on("round-complete", (data) => {
-        console.log("🏁 Round completed:", data);
+    socket.on("round-complete", (data) => {
+      console.log("🏁 Round completed:", data);
 
-        // Update game state if provided
-        if (data.game) {
-          setGame(data.game);
-        }
+      // Update game state if provided
+      if (data.game) {
+        setGame(data.game);
+      }
 
-        if (data.roundSummary) {
-          setRoundSummary(data.roundSummary);
-          if (data.roundSummary.round === 0) {
-            setControlMessage(
-              `${data.roundSummary.tossUpWinner?.teamName || "A team"} won the toss-up!`
-            );
-          } else {
-            setControlMessage(
-              `Round ${data.roundSummary.round} completed! ${
-                data.isGameFinished ? "Game finished!" : "Ready for next round."
-              }`
-            );
-          }
-        } else if (typeof data.round !== "undefined") {
-          // Fallback when summary is missing
+      if (data.roundSummary) {
+        setRoundSummary(data.roundSummary);
+        if (data.roundSummary.round === 0) {
           setControlMessage(
-            `Round ${data.round} completed! ${
-              data.isGameFinished ? "Game finished!" : "Ready for next round."
-            }`
+              `${data.roundSummary.tossUpWinner?.teamName || "A team"} won the toss-up!`
+          );
+        } else {
+          setControlMessage(
+              `Round ${data.roundSummary.round} completed! ${
+                  data.isGameFinished ? "Game finished!" : "Ready for next round."
+              }`
           );
         }
-      });
+      } else if (typeof data.round !== "undefined") {
+        // Fallback when summary is missing
+        setControlMessage(
+            `Round ${data.round} completed! ${
+                data.isGameFinished ? "Game finished!" : "Ready for next round."
+            }`
+        );
+      }
+    });
 
     socket.on("round-started", (data) => {
       console.log("🆕 New round started:", data);
@@ -267,7 +266,7 @@ const HostGamePage: React.FC = () => {
       setRoundSummary(null);
       const teamName = getTeamName(data.game, data.activeTeam);
       setControlMessage(
-        `Round ${data.round} started! ${teamName} goes first. Each question allows only 1 attempt.`
+          `Round ${data.round} started! ${teamName} goes first. Each question allows only 1 attempt.`
       );
     });
 
@@ -306,7 +305,7 @@ const HostGamePage: React.FC = () => {
       console.log("✅ Answer overridden:", data);
       setGame(data.game);
       setControlMessage(
-        `Host awarded ${data.pointsAwarded} points to ${data.teamName}.`
+          `Host awarded ${data.pointsAwarded} points to ${data.teamName}.`
       );
       setOverrideMode(false);
     });
@@ -344,7 +343,7 @@ const HostGamePage: React.FC = () => {
 
   const createGame = async () => {
     console.log(
-      "🎮 Creating new single-attempt game with question tracking..."
+        "🎮 Creating new single-attempt game with question tracking..."
     );
     setIsLoading(true);
     setControlMessage("");
@@ -362,7 +361,7 @@ const HostGamePage: React.FC = () => {
       const { gameCode: newGameCode } = response;
       setGameCode(newGameCode);
       setControlMessage(
-        `Game created successfully! Code: ${newGameCode}. Each question allows only 1 attempt.`
+          `Game created successfully! Code: ${newGameCode}. Each question allows only 1 attempt.`
       );
 
       setupSocket(newGameCode);
@@ -371,11 +370,11 @@ const HostGamePage: React.FC = () => {
 
       if (error instanceof Error) {
         if (
-          error.message.includes("ECONNREFUSED") ||
-          error.message.includes("ERR_NETWORK")
+            error.message.includes("ECONNREFUSED") ||
+            error.message.includes("ERR_NETWORK")
         ) {
           setControlMessage(
-            "Cannot connect to server. Make sure the server is running on http://localhost:5004"
+              "Cannot connect to server. Make sure the server is running on http://localhost:5004"
           );
         } else {
           setControlMessage(`Error: ${error.message}`);
@@ -506,107 +505,107 @@ const HostGamePage: React.FC = () => {
   // Not created yet - show creation form
   if (!gameCode) {
     return (
-      <PageLayout>
-        <div className="flex justify-center">
-          <GameCreationForm
-            team1Name={team1Name}
-            team2Name={team2Name}
-            onTeam1Change={setTeam1Name}
-            onTeam2Change={setTeam2Name}
-            onCreateGame={createGame}
-            isLoading={isLoading}
-          />
-        </div>
-        {controlMessage && (
-          <div className="mt-4 text-center">
-            <div className="text-blue-400">{controlMessage}</div>
+        <PageLayout>
+          <div className="flex justify-center">
+            <GameCreationForm
+                team1Name={team1Name}
+                team2Name={team2Name}
+                onTeam1Change={setTeam1Name}
+                onTeam2Change={setTeam2Name}
+                onCreateGame={createGame}
+                isLoading={isLoading}
+            />
           </div>
-        )}
-      </PageLayout>
+          {controlMessage && (
+              <div className="mt-4 text-center">
+                <div className="text-blue-400">{controlMessage}</div>
+              </div>
+          )}
+        </PageLayout>
     );
   }
 
   // Game created but waiting for players
   if (game && game.status === "waiting") {
     return (
-      <PageLayout gameCode={gameCode}>
-        <AnimatedCard>
-          <div className="max-w-4xl mx-auto">
-            <div className="glass-card p-8 text-center">
-              <h2 className="text-3xl font-bold mb-6">Game Setup</h2>
+        <PageLayout gameCode={gameCode}>
+          <AnimatedCard>
+            <div className="max-w-4xl mx-auto">
+              <div className="glass-card p-8 text-center">
+                <h2 className="text-3xl font-bold mb-6">Game Setup</h2>
 
-              <div className="mb-8">
-                <p className="text-lg text-slate-300 mb-2">
-                  Share this code with contestants:
-                </p>
-                <div className="text-5xl font-mono font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-                  {gameCode}
+                <div className="mb-8">
+                  <p className="text-lg text-slate-300 mb-2">
+                    Share this code with contestants:
+                  </p>
+                  <div className="text-5xl font-mono font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+                    {gameCode}
+                  </div>
+                  <p className="text-sm text-slate-400 mt-4">
+                    ⭐ Each question allows only 1 attempt!
+                  </p>
                 </div>
-                <p className="text-sm text-slate-400 mt-4">
-                  ⭐ Each question allows only 1 attempt!
-                </p>
+
+                <Button
+                    onClick={handleStartGame}
+                    variant="success"
+                    size="xl"
+                    disabled={game.players.length < 2}
+                    icon={<span className="text-2xl">🎮</span>}
+                    className="mb-6"
+                >
+                  BEGIN SINGLE-ATTEMPT COMPETITION
+                </Button>
+
+                {game.players && game.players.length > 0 && (
+                    <PlayerList
+                        players={game.players}
+                        teams={game.teams}
+                        variant="waiting"
+                    />
+                )}
               </div>
-
-              <Button
-                onClick={handleStartGame}
-                variant="success"
-                size="xl"
-                disabled={game.players.length < 2}
-                icon={<span className="text-2xl">🎮</span>}
-                className="mb-6"
-              >
-                BEGIN SINGLE-ATTEMPT COMPETITION
-              </Button>
-
-              {game.players && game.players.length > 0 && (
-                <PlayerList
-                  players={game.players}
-                  teams={game.teams}
-                  variant="waiting"
-                />
-              )}
             </div>
-          </div>
-        </AnimatedCard>
-      </PageLayout>
+          </AnimatedCard>
+        </PageLayout>
     );
   }
 
   // If we have a gameCode but no game, show a loading state
   if (gameCode && !game) {
     return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-full">
-          <div className="glass-card p-8 text-center">
-            <LoadingSpinner />
-            <p className="mt-4 text-slate-400">
-              Setting up single-attempt game with question tracking...
-            </p>
-            <p className="text-sm text-slate-500 mt-2">Game Code: {gameCode}</p>
-            {controlMessage && (
-              <p className="text-sm text-blue-400 mt-2">{controlMessage}</p>
-            )}
+        <PageLayout>
+          <div className="flex items-center justify-center h-full">
+            <div className="glass-card p-8 text-center">
+              <LoadingSpinner />
+              <p className="mt-4 text-slate-400">
+                Setting up single-attempt game with question tracking...
+              </p>
+              <p className="text-sm text-slate-500 mt-2">Game Code: {gameCode}</p>
+              {controlMessage && (
+                  <p className="text-sm text-blue-400 mt-2">{controlMessage}</p>
+              )}
+            </div>
           </div>
-        </div>
-      </PageLayout>
+        </PageLayout>
     );
   }
 
   // Round Summary Screen
   if (game?.status === "round-summary" && roundSummary) {
     return (
-      <PageLayout gameCode={gameCode} timer={timer} variant="game">
-        <div className="p-4">
-          <RoundSummaryComponent
-            roundSummary={roundSummary}
-            teams={game.teams}
-            isHost={true}
-            isGameFinished={game.currentRound >= 3}
-            onContinueToNextRound={handleContinueToNextRound}
-            onBackToHome={() => (window.location.href = ROUTES.HOSTHOME)}
-          />
-        </div>
-      </PageLayout>
+        <PageLayout gameCode={gameCode} timer={timer} variant="game">
+          <div className="p-4">
+            <RoundSummaryComponent
+                roundSummary={roundSummary}
+                teams={game.teams}
+                isHost={true}
+                isGameFinished={game.currentRound >= 3}
+                onContinueToNextRound={handleContinueToNextRound}
+                onBackToHome={() => (window.location.href = ROUTES.HOSTHOME)}
+            />
+          </div>
+        </PageLayout>
     );
   }
 
@@ -617,56 +616,56 @@ const HostGamePage: React.FC = () => {
     const team2QuestionsAnswered = game.gameState.questionsAnswered.team2 || 0;
 
     return (
-      <PageLayout gameCode={gameCode} timer={timer} variant="game">
-        {/* Left Team Panel with Question Data */}
-        <div className="order-2 md:order-none w-full md:w-48 md:flex-shrink-0">
-          <TeamPanel
-            team={game.teams[0]}
-            teamIndex={0}
-            isActive={game.teams[0]?.active}
-            showMembers={true}
-            currentRound={game.currentRound}
-            roundScore={game.teams[0].currentRoundScore}
-            questionsAnswered={team1QuestionsAnswered}
-            questionData={getTeamQuestionData("team1")}
-          />
-        </div>
+        <PageLayout gameCode={gameCode} timer={timer} variant="game">
+          {/* Left Team Panel with Question Data */}
+          <div className="order-2 md:order-none w-full md:w-48 md:flex-shrink-0">
+            <TeamPanel
+                team={game.teams[0]}
+                teamIndex={0}
+                isActive={game.teams[0]?.active}
+                showMembers={true}
+                currentRound={game.currentRound}
+                roundScore={game.teams[0].currentRoundScore}
+                questionsAnswered={team1QuestionsAnswered}
+                questionData={getTeamQuestionData("team1")}
+            />
+          </div>
 
-        {/* Center Game Area */}
-        <div className="order-1 md:order-none flex-1 flex flex-col overflow-y-auto">
-          {/* Turn Indicator */}
-          <TurnIndicator
-            currentTeam={game.gameState.currentTurn}
-            teams={game.teams}
-            currentQuestion={currentQuestion}
-            questionsAnswered={game.gameState.questionsAnswered}
-            round={game.currentRound}
-            variant="compact"
-          />
+          {/* Center Game Area */}
+          <div className="order-1 md:order-none flex-1 flex flex-col overflow-y-auto">
+            {/* Turn Indicator */}
+            <TurnIndicator
+                currentTeam={game.gameState.currentTurn}
+                teams={game.teams}
+                currentQuestion={currentQuestion}
+                questionsAnswered={game.gameState.questionsAnswered}
+                round={game.currentRound}
+                variant="compact"
+            />
 
-          {/* Game Board */}
-          <GameBoard
-            game={game}
-            variant="host"
-            isHost={true}
-            controlMessage={controlMessage}
-            overrideMode={overrideMode}
-            overridePoints={overridePoints}
-            onOverridePointsChange={setOverridePoints}
-            onCancelOverride={handleCancelOverride}
-            onConfirmOverride={handleConfirmOverride}
-            onSelectAnswer={handleSelectOverride}
-            onNextQuestion={handleNextQuestion}
-          />
+            {/* Game Board */}
+            <GameBoard
+                game={game}
+                variant="host"
+                isHost={true}
+                controlMessage={controlMessage}
+                overrideMode={overrideMode}
+                overridePoints={overridePoints}
+                onOverridePointsChange={setOverridePoints}
+                onCancelOverride={handleCancelOverride}
+                onConfirmOverride={handleConfirmOverride}
+                onSelectAnswer={handleSelectOverride}
+                onNextQuestion={handleNextQuestion}
+            />
 
 
-          {/* Host Controls - CLEAN VERSION */}
-          <div className="glass-card p-3 mt-2">
-            <div className="text-center mb-2">
-              <div className="text-sm text-slate-400 mb-2">Host Controls</div>
-            </div>
-            <div className="flex gap-2 justify-center flex-wrap">
-              {/* <Button
+            {/* Host Controls - CLEAN VERSION */}
+            <div className="glass-card p-3 mt-2">
+              <div className="text-center mb-2">
+                <div className="text-sm text-slate-400 mb-2">Host Controls</div>
+              </div>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {/* <Button
                 onClick={handleNextQuestion}
                 variant="primary"
                 size="sm"
@@ -675,82 +674,82 @@ const HostGamePage: React.FC = () => {
               >
                 ➡️ Next Question
               </Button> */}
-              <Button
-                onClick={handleForceNextQuestion}
-                variant="secondary"
-                size="sm"
-                className="text-xs py-1 px-3"
-              >
-                ⏭️ Force Next
-              </Button>
-              {pendingOverride && !overrideMode && (
                 <Button
-                  onClick={handleOverrideAnswer}
-                  variant="secondary"
-                  size="sm"
-                  className="text-xs py-1 px-3"
+                    onClick={handleForceNextQuestion}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs py-1 px-3"
                 >
-                  ✅ Override
+                  ⏭️ Force Next
                 </Button>
-              )}
-              <Button
-                onClick={handleResetGame}
-                variant="secondary"
-                size="sm"
-                className="text-xs py-1 px-3"
-              >
-                🔄 Reset
-              </Button>
+                {pendingOverride && !overrideMode && (
+                    <Button
+                        onClick={handleOverrideAnswer}
+                        variant="secondary"
+                        size="sm"
+                        className="text-xs py-1 px-3"
+                    >
+                      ✅ Override
+                    </Button>
+                )}
+                <Button
+                    onClick={handleResetGame}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs py-1 px-3"
+                >
+                  🔄 Reset
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Team Panel with Question Data */}
-        <div className="order-3 md:order-none w-full md:w-48 md:flex-shrink-0">
-          <TeamPanel
-            team={game.teams[1]}
-            teamIndex={1}
-            isActive={game.teams[1]?.active}
-            showMembers={true}
-            currentRound={game.currentRound}
-            roundScore={game.teams[1].currentRoundScore}
-            questionsAnswered={team2QuestionsAnswered}
-            questionData={getTeamQuestionData("team2")}
-          />
-        </div>
-      </PageLayout>
+          {/* Right Team Panel with Question Data */}
+          <div className="order-3 md:order-none w-full md:w-48 md:flex-shrink-0">
+            <TeamPanel
+                team={game.teams[1]}
+                teamIndex={1}
+                isActive={game.teams[1]?.active}
+                showMembers={true}
+                currentRound={game.currentRound}
+                roundScore={game.teams[1].currentRoundScore}
+                questionsAnswered={team2QuestionsAnswered}
+                questionData={getTeamQuestionData("team2")}
+            />
+          </div>
+        </PageLayout>
     );
   }
 
   // Results Screen
   if (game?.status === "finished") {
     return (
-      <PageLayout gameCode={gameCode} timer={timer}>
-        <GameResults
-          teams={game.teams}
-          onCreateNewGame={createGame}
-          showCreateNewGame={true}
-        />
-      </PageLayout>
+        <PageLayout gameCode={gameCode} timer={timer}>
+          <GameResults
+              teams={game.teams}
+              onCreateNewGame={createGame}
+              showCreateNewGame={true}
+          />
+        </PageLayout>
     );
   }
 
   // Fallback for any unexpected game state
   return (
-    <PageLayout gameCode={gameCode}>
-      <AnimatedCard>
-        <div className="glass-card p-8 text-center">
-          <p className="text-xl font-bold mb-4">Unexpected Game State</p>
-          <p className="text-slate-400 mb-4">
-            The game is in an unexpected state. Please refresh the page or
-            create a new game.
-          </p>
-          <Link to={ROUTES.HOSTHOME}>
-            <Button variant="primary">Back to Home</Button>
-          </Link>
-        </div>
-      </AnimatedCard>
-    </PageLayout>
+      <PageLayout gameCode={gameCode}>
+        <AnimatedCard>
+          <div className="glass-card p-8 text-center">
+            <p className="text-xl font-bold mb-4">Unexpected Game State</p>
+            <p className="text-slate-400 mb-4">
+              The game is in an unexpected state. Please refresh the page or
+              create a new game.
+            </p>
+            <Link to={ROUTES.HOSTHOME}>
+              <Button variant="primary">Back to Home</Button>
+            </Link>
+          </div>
+        </AnimatedCard>
+      </PageLayout>
   );
 };
 
