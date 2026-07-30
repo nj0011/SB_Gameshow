@@ -3,7 +3,7 @@ import { LoginCredentials, LoginResponse, RegisterCredentials, RegisterResponse 
 import { API_BASE } from "../utils/constants";
 
 const API = axios.create({
-  baseURL: "https://sb-gameshow.onrender.com/api/auth",
+  baseURL: "http://localhost:3001/api/auth",
   headers: {
     "Content-Type": "application/json",
   },
